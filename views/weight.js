@@ -5,7 +5,7 @@ window.WeightView = {
     currentTrend: 30, // 30 or 90
     
     render() {
-        const todayLog = Store.getTodayLog() || {};
+        const todayLog = Store.getActiveLog() || {};
         
         return `
             <div class="view-section active" id="weight-view">
@@ -62,7 +62,7 @@ window.WeightView = {
         container.querySelector('#save-weight-btn').addEventListener('click', () => {
             const val = parseFloat(container.querySelector('#weight-input-val').value);
             if (!isNaN(val)) {
-                Store.updateTodayLog({ weight: val });
+                Store.updateActiveLog({ weight: val });
                 this.updateChart();
                 this.updateAverages();
                 const btn = container.querySelector('#save-weight-btn');
@@ -91,7 +91,7 @@ window.WeightView = {
     getChartData(days) {
         const data = Store.getUserData();
         const logs = data.dailyLogs;
-        const today = new Date();
+        const today = Store.getActiveDate();
         const dates = [];
         const weights = [];
         
@@ -155,7 +155,7 @@ window.WeightView = {
         
         // 7 day avg
         let weekSum = 0; let weekCount = 0;
-        const today = new Date();
+        const today = Store.getActiveDate();
         for(let i=0; i<7; i++){
             const d = new Date(today); d.setDate(today.getDate() - i);
             const dateStr = d.toISOString().split('T')[0];

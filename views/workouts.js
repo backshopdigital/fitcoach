@@ -3,7 +3,7 @@
 window.WorkoutsView = {
     render() {
         const config = Store.getUserConfig();
-        const todayDay = new Date().getDay();
+        const todayDay = Store.getActiveDate().getDay();
         const splitDay = config.split.find(s => s.day === todayDay) || {name: "Rest"};
         
         return `
@@ -101,18 +101,18 @@ window.WorkoutsView = {
         const btn = container.querySelector('#finish-workout-btn');
         if (btn) {
             // Check if already completed today
-            if (Store.getTodayLog().workoutCompleted) {
+            if (Store.getActiveLog().workoutCompleted) {
                 btn.textContent = "Workout Completed!";
                 btn.style.backgroundColor = "var(--bg-surface-elevated)";
                 btn.style.color = "var(--accent-color)";
             }
 
             btn.addEventListener('click', () => {
-                if (Store.getTodayLog().workoutCompleted) return;
+                if (Store.getActiveLog().workoutCompleted) return;
                 
                 // Harvest Data
                 const data = Store.getUserData();
-                const todayStr = Store.getTodayStr();
+                const todayStr = Store.getActiveDateStr();
                 
                 container.querySelectorAll('.exercise-card').forEach(card => {
                     const exName = card.dataset.exercise;
@@ -132,7 +132,7 @@ window.WorkoutsView = {
                     });
                 });
                 
-                Store.updateTodayLog({ workoutCompleted: true });
+                Store.updateActiveLog({ workoutCompleted: true });
                 Store.saveData(); // Save history
                 
                 btn.textContent = "Workout Completed!";

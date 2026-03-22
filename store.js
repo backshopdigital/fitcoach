@@ -129,6 +129,7 @@ class AppStore {
             keaton: this.getInitialUserData(),
             emily: this.getInitialUserData()
         };
+        this.activeDate = new Date();
         this.listeners = [];
     }
     
@@ -223,17 +224,26 @@ class AppStore {
     getUserData() {
         return this.userData[this.currentUser];
     }
-
-    getTodayStr() {
-        const today = new Date();
-        return today.toISOString().split('T')[0];
+    
+    getActiveDate() {
+        return this.activeDate;
     }
     
-    getTodayLog() {
-        const todayStr = this.getTodayStr();
+    changeActiveDateBy(days) {
+        this.activeDate.setDate(this.activeDate.getDate() + days);
+        this.notify();
+    }
+
+    getActiveDateStr() {
+        const offset = this.activeDate.getTimezoneOffset() * 60000;
+        return (new Date(this.activeDate.getTime() - offset)).toISOString().split('T')[0];
+    }
+    
+    getActiveLog() {
+        const dateStr = this.getActiveDateStr();
         const data = this.getUserData();
-        if (!data.dailyLogs[todayStr]) {
-            data.dailyLogs[todayStr] = {
+        if (!data.dailyLogs[dateStr]) {
+            data.dailyLogs[dateStr] = {
                 calories: 0, protein: 0, carbs: 0, fat: 0,
                 steps: 0, workoutCompleted: false, weight: null
             };
@@ -241,13 +251,13 @@ class AppStore {
             localStorage.setItem('fitcoach_appData', JSON.stringify(this.userData));
             this.syncToCloud();
         }
-        return data.dailyLogs[todayStr];
+        return data.dailyLogs[dateStr];
     }
 
-    updateTodayLog(updates) {
-        const todayStr = this.getTodayStr();
+    updateActiveLog(updates) {
+        const dateStr = this.getActiveDateStr();
         const data = this.getUserData();
-        data.dailyLogs[todayStr] = { ...this.getTodayLog(), ...updates };
+        data.dailyLogs[dateStr] = { ...this.getActiveLog(), ...updates };
         this.saveData();
     }
     

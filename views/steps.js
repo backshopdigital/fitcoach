@@ -3,7 +3,7 @@
 window.StepsView = {
     render() {
         const config = Store.getUserConfig();
-        const todayLog = Store.getTodayLog() || {};
+        const todayLog = Store.getActiveLog() || {};
         const stepsGoal = config.goals.steps;
         const currentSteps = todayLog.steps || 0;
         
@@ -53,7 +53,7 @@ window.StepsView = {
         container.querySelector('#save-steps-btn').addEventListener('click', () => {
             const val = parseInt(container.querySelector('#manual-steps-input').value, 10);
             if (!isNaN(val)) {
-                Store.updateTodayLog({ steps: val });
+                Store.updateActiveLog({ steps: val });
                 App.renderView(); // Re-render to update the circle and status
             }
         });

@@ -162,7 +162,7 @@ window.CheckInView = {
             };
 
             const checkin = {
-                date: new Date().toISOString(),
+                date: Store.getActiveDate().toISOString(),
                 energy: getScaleVal('scale-energy'),
                 steps: getScaleVal('scale-steps'),
                 sleep: getScaleVal('scale-sleep'),

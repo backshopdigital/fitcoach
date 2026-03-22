@@ -4,13 +4,20 @@ window.DashboardView = {
     render() {
         return `
             <div class="view-section active" id="dashboard-view">
+                <style>
+                    .date-nav { display:flex; align-items:center; gap:24px; margin-top:16px; justify-content:center; }
+                    .date-nav-btn { background:var(--bg-surface-elevated); border:1px solid var(--border-color); color:var(--text-secondary); cursor:pointer; padding: 8px; border-radius: 8px; display:flex; align-items:center; justify-content:center; transition: all 0.2s; }
+                    .date-nav-btn:hover { background:var(--accent-color); color:#000; border-color:var(--accent-color); }
+                </style>
                 <div class="streak-header">
                     <div class="streak-badge">
                         <i data-lucide="flame"></i>
                         <span id="streak-count">0 Day Streak</span>
                     </div>
-                    <div class="date-display" id="current-date">
-                        ...
+                    <div class="date-nav">
+                        <button class="date-nav-btn" id="dash-prev-day"><i data-lucide="chevron-left"></i></button>
+                        <div class="date-display" id="current-date" style="margin-top:0; min-width: 140px; text-align:center;">...</div>
+                        <button class="date-nav-btn" id="dash-next-day"><i data-lucide="chevron-right"></i></button>
                     </div>
                 </div>
 
@@ -64,18 +71,31 @@ window.DashboardView = {
     },
 
     mount(container) {
+        container.querySelector('#dash-prev-day').addEventListener('click', () => {
+            Store.changeActiveDateBy(-1);
+            if (window.App) App.renderView();
+        });
+        container.querySelector('#dash-next-day').addEventListener('click', () => {
+            Store.changeActiveDateBy(1);
+            if (window.App) App.renderView();
+        });
+
         // Compute and update values
         this.updateData();
-        
-        // Add specific CSS for this view if we want to dynamically attach styles or just use global
-        const dateEl = container.querySelector('#current-date');
-        const options = { weekday: 'long', month: 'short', day: 'numeric' };
-        dateEl.textContent = new Date().toLocaleDateString('en-US', options);
     },
 
     updateData() {
         const config = Store.getUserConfig();
-        const logs = Store.getTodayLog();
+        const logs = Store.getActiveLog();
+        
+        const dateEl = document.getElementById('current-date');
+        const options = { weekday: 'short', month: 'short', day: 'numeric' };
+        let displayStr = Store.getActiveDate().toLocaleDateString('en-US', options);
+        
+        if (displayStr === new Date().toLocaleDateString('en-US', options)) {
+            displayStr = "Today";
+        }
+        dateEl.textContent = displayStr;
         
         // Goals
         document.getElementById('goal-protein').textContent = config.goals.protein;
