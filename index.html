@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>FitCoach</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Main Top Header -->
+        <header id="app-header">
+            <h1 class="logo">Fit<span class="accent">Coach</span></h1>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button id="admin-nav-btn" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;">
+                    <i data-lucide="settings" style="width:20px;height:20px;"></i>
+                </button>
+                <div class="profile-switcher" id="profile-switcher">
+                    <span id="current-user-name">Keaton</span>
+                    <i data-lucide="chevron-down"></i>
+                    <div class="dropdown-menu" id="profile-dropdown">
+                        <button data-userid="keaton" class="profile-option">Keaton</button>
+                        <button data-userid="emily" class="profile-option">Emily</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main View Container -->
+        <main id="main-content">
+            <!-- Content gets injected here based on routing -->
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav id="bottom-nav">
+            <button class="nav-btn active" data-route="dashboard">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-btn" data-route="workouts">
+                <i data-lucide="dumbbell"></i>
+                <span>Workout</span>
+            </button>
+            <button class="nav-btn" data-route="weight">
+                <i data-lucide="scale"></i>
+                <span>Weight</span>
+            </button>
+            <button class="nav-btn" data-route="steps">
+                <i data-lucide="footprints"></i>
+                <span>Steps</span>
+            </button>
+            <button class="nav-btn" data-route="checkin">
+                <i data-lucide="clipboard-check"></i>
+                <span>Check-In</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Scripts -->
+    <script src="store.js"></script>
+    <script src="views/dashboard.js"></script>
+    <script src="views/workouts.js"></script>
+    <script src="views/weight.js"></script>
+    <script src="views/steps.js"></script>
+    <script src="views/checkin.js"></script>
+    <script src="views/admin.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
