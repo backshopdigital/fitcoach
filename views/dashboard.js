@@ -104,26 +104,29 @@ window.DashboardView = {
         });
 
         container.querySelector('#save-macros-btn').addEventListener('click', (e) => {
-            const p = parseInt(container.querySelector('#inp-macro-protein').value) || 0;
-            const c = parseInt(container.querySelector('#inp-macro-cals').value) || 0;
-            const cb = parseInt(container.querySelector('#inp-macro-carbs').value) || 0;
-            const f = parseInt(container.querySelector('#inp-macro-fat').value) || 0;
+            e.preventDefault();
+            const p = parseInt(document.getElementById('inp-macro-protein').value) || 0;
+            const c = parseInt(document.getElementById('inp-macro-cals').value) || 0;
+            const cb = parseInt(document.getElementById('inp-macro-carbs').value) || 0;
+            const f = parseInt(document.getElementById('inp-macro-fat').value) || 0;
             
             Store.updateActiveLog({ protein: p, calories: c, carbs: cb, fat: f });
             
-            const btn = e.target;
-            btn.textContent = "Saved!";
-            btn.style.backgroundColor = "var(--bg-surface-elevated)";
-            btn.style.color = "var(--accent-color)";
-            
-            setTimeout(() => {
-                btn.textContent = "Save Macros";
-                btn.style.backgroundColor = "var(--accent-color)";
-                btn.style.color = "#000";
-            }, 1000);
-            
-            this.updateData();
-            if (window.App) App.renderView(); // Cleanly re-render any circular deps
+            const btn = document.getElementById('save-macros-btn');
+            if (btn) {
+                btn.textContent = "Saved!";
+                btn.style.backgroundColor = "var(--bg-surface-elevated)";
+                btn.style.color = "var(--accent-color)";
+                
+                setTimeout(() => {
+                    const activeBtn = document.getElementById('save-macros-btn');
+                    if (activeBtn) {
+                        activeBtn.textContent = "Save Macros";
+                        activeBtn.style.backgroundColor = "var(--accent-color)";
+                        activeBtn.style.color = "#000";
+                    }
+                }, 1000);
+            }
         });
 
         // Compute and update values
