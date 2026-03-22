@@ -98,6 +98,27 @@ const DEFAULT_WORKOUTS = {
     ]
 };
 
+// --- Firebase Configuration ---
+const firebaseConfig = {
+  apiKey: "AIzaSyBRlL7bKsuY3dm_QEyW75eMAUALymFYwFI",
+  authDomain: "fitcoach-fitness.firebaseapp.com",
+  projectId: "fitcoach-fitness",
+  storageBucket: "fitcoach-fitness.firebasestorage.app",
+  messagingSenderId: "950886789848",
+  appId: "1:950886789848:web:8896952763340daef3ddad",
+  measurementId: "G-H5H7YKWLBZ"
+};
+
+let db = null;
+try {
+    if (window.firebase) {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+    }
+} catch (e) {
+    console.error("Firebase init bypass:", e);
+}
+
 class AppStore {
     constructor() {
         this.usersConfig = this.loadData('usersConfig') || DEFAULT_USERS;
@@ -109,6 +130,9 @@ class AppStore {
             emily: this.getInitialUserData()
         };
         this.listeners = [];
+        
+        // Start real-time cloud sync listener
+        this.initCloudSync();
     }
     
     getInitialUserData() {
@@ -128,6 +152,40 @@ class AppStore {
             return null;
         }
     }
+    
+    initCloudSync() {
+        if (!db) return;
+        // Listen to remote changes
+        db.collection('fitcoach').doc('globalStore').onSnapshot(doc => {
+            if (doc.exists) {
+                const cloudData = doc.data();
+                this.userData = cloudData.userData || this.userData;
+                this.usersConfig = cloudData.usersConfig || this.usersConfig;
+                this.workoutsConfig = cloudData.workoutsConfig || this.workoutsConfig;
+                
+                // Mirror back to local cache instantly
+                localStorage.setItem('fitcoach_appData', JSON.stringify(this.userData));
+                localStorage.setItem('fitcoach_usersConfig', JSON.stringify(this.usersConfig));
+                localStorage.setItem('fitcoach_workoutsConfig', JSON.stringify(this.workoutsConfig));
+                
+                this.notify();
+            } else {
+                // If cloud is totally empty, seed it with our local data
+                this.syncToCloud();
+            }
+        }, err => {
+            console.error("Firestore real-time sync error:", err);
+        });
+    }
+    
+    syncToCloud() {
+        if (!db) return;
+        db.collection('fitcoach').doc('globalStore').set({
+            userData: this.userData,
+            usersConfig: this.usersConfig,
+            workoutsConfig: this.workoutsConfig
+        }, { merge: true }).catch(err => console.error("Cloud Error:", err));
+    }
 
     saveData() {
         localStorage.setItem('fitcoach_currentUser', JSON.stringify(this.currentUser));
@@ -135,6 +193,7 @@ class AppStore {
         localStorage.setItem('fitcoach_usersConfig', JSON.stringify(this.usersConfig));
         localStorage.setItem('fitcoach_workoutsConfig', JSON.stringify(this.workoutsConfig));
         this.notify();
+        this.syncToCloud();
     }
 
     switchUser(userId) {
@@ -183,6 +242,7 @@ class AppStore {
             };
             // Save state silently without triggering re-render
             localStorage.setItem('fitcoach_appData', JSON.stringify(this.userData));
+            this.syncToCloud();
         }
         return data.dailyLogs[todayStr];
     }
