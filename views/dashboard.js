@@ -50,6 +50,29 @@ window.DashboardView = {
                     </div>
                 </div>
 
+                <div class="card" style="margin-bottom: 16px;">
+                    <h3 class="section-title" style="font-size: 1rem; margin-bottom: 12px; margin-top: 0;">Log Macros</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label style="display:block; font-size: 0.8rem; margin-bottom: 4px; color:var(--text-secondary);">Protein (g)</label>
+                            <input type="number" id="inp-macro-protein" class="input-field" style="margin-bottom:0;" placeholder="0">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size: 0.8rem; margin-bottom: 4px; color:var(--text-secondary);">Calories</label>
+                            <input type="number" id="inp-macro-cals" class="input-field" style="margin-bottom:0;" placeholder="0">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size: 0.8rem; margin-bottom: 4px; color:var(--text-secondary);">Carbs (g)</label>
+                            <input type="number" id="inp-macro-carbs" class="input-field" style="margin-bottom:0;" placeholder="0">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size: 0.8rem; margin-bottom: 4px; color:var(--text-secondary);">Fat (g)</label>
+                            <input type="number" id="inp-macro-fat" class="input-field" style="margin-bottom:0;" placeholder="0">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="save-macros-btn" style="width: 100%; margin-top: 16px;">Save Macros</button>
+                </div>
+
                 <div class="stats-row">
                     <div class="card stat-card" onclick="document.querySelector('[data-route=steps]').click()">
                         <div class="stat-icon"><i data-lucide="footprints"></i></div>
@@ -80,6 +103,29 @@ window.DashboardView = {
             if (window.App) App.renderView();
         });
 
+        container.querySelector('#save-macros-btn').addEventListener('click', (e) => {
+            const p = parseInt(container.querySelector('#inp-macro-protein').value) || 0;
+            const c = parseInt(container.querySelector('#inp-macro-cals').value) || 0;
+            const cb = parseInt(container.querySelector('#inp-macro-carbs').value) || 0;
+            const f = parseInt(container.querySelector('#inp-macro-fat').value) || 0;
+            
+            Store.updateActiveLog({ protein: p, calories: c, carbs: cb, fat: f });
+            
+            const btn = e.target;
+            btn.textContent = "Saved!";
+            btn.style.backgroundColor = "var(--bg-surface-elevated)";
+            btn.style.color = "var(--accent-color)";
+            
+            setTimeout(() => {
+                btn.textContent = "Save Macros";
+                btn.style.backgroundColor = "var(--accent-color)";
+                btn.style.color = "#000";
+            }, 1000);
+            
+            this.updateData();
+            if (window.App) App.renderView(); // Cleanly re-render any circular deps
+        });
+
         // Compute and update values
         this.updateData();
     },
@@ -104,12 +150,12 @@ window.DashboardView = {
         document.getElementById('goal-fat').textContent = config.goals.fat;
         document.getElementById('goal-steps').textContent = config.goals.steps;
         
-        // Current Logs (Dashboard values shouldn't be edited here, they are edited elsewhere or we mock edit buttons? Wait, we need a way to log macros here)
-        // Actually, let's just make the dash read-only for now, and maybe add quick log later, but requirements didn't specify a log screen for macros. 
-        // Oh wait - "Macro progress bars... Today's summary". But where do they log it? "Weekly Check-In: 8-question... fields to log weight... steps"
-        // Wait, if there's no UI for logging macros, user can't update them? The prompt just said "Today's summary: calories, protein, steps, workout status"
-        // I should probably add simple edit buttons on the dashboard for macros!
-        
+        // Populate inputs
+        document.getElementById('inp-macro-protein').value = logs.protein || '';
+        document.getElementById('inp-macro-cals').value = logs.calories || '';
+        document.getElementById('inp-macro-carbs').value = logs.carbs || '';
+        document.getElementById('inp-macro-fat').value = logs.fat || '';
+
         const updateVal = (id, val, goalId, progId, isPrimary) => {
             document.getElementById(id).textContent = val || 0;
             const goal = config.goals[goalId];
