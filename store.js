@@ -129,7 +129,15 @@ class AppStore {
             keaton: this.getInitialUserData(),
             emily: this.getInitialUserData()
         };
-        this.activeDate = new Date();
+        
+        const storedDateStr = this.loadData('activeDateStr');
+        if (storedDateStr) {
+            const parts = storedDateStr.split('-');
+            this.activeDate = new Date(parts[0], parts[1]-1, parts[2]);
+        } else {
+            this.activeDate = new Date();
+        }
+        
         this.listeners = [];
     }
     
@@ -180,9 +188,9 @@ class AppStore {
     syncToCloud() {
         if (!db || !window.firebase || !firebase.auth().currentUser) return;
         db.collection('fitcoach').doc('globalStore').set({
-            userData: this.userData,
-            usersConfig: this.usersConfig,
-            workoutsConfig: this.workoutsConfig
+            userData: JSON.parse(JSON.stringify(this.userData)),
+            usersConfig: JSON.parse(JSON.stringify(this.usersConfig)),
+            workoutsConfig: JSON.parse(JSON.stringify(this.workoutsConfig))
         }, { merge: true }).catch(err => {
             console.error("Cloud Error:", err);
             alert("Database Write Blocked! Your data is not saving to the cloud. Check Firebase Security Rules.\\n\\nError: " + err.message);
@@ -235,6 +243,7 @@ class AppStore {
     
     changeActiveDateBy(days) {
         this.activeDate.setDate(this.activeDate.getDate() + days);
+        localStorage.setItem('fitcoach_activeDateStr', JSON.stringify(this.getActiveDateStr()));
         this.notify();
     }
 
