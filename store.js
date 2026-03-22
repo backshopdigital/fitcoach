@@ -173,6 +173,7 @@ class AppStore {
             }
         }, err => {
             console.error("Firestore real-time sync error:", err);
+            alert("Database Read Blocked! Cannot load cloud data. Check Firebase Security Rules.\\n\\nError: " + err.message);
         });
     }
     
@@ -182,7 +183,10 @@ class AppStore {
             userData: this.userData,
             usersConfig: this.usersConfig,
             workoutsConfig: this.workoutsConfig
-        }, { merge: true }).catch(err => console.error("Cloud Error:", err));
+        }, { merge: true }).catch(err => {
+            console.error("Cloud Error:", err);
+            alert("Database Write Blocked! Your data is not saving to the cloud. Check Firebase Security Rules.\\n\\nError: " + err.message);
+        });
     }
 
     saveData() {
