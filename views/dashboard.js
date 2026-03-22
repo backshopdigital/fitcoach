@@ -103,31 +103,42 @@ window.DashboardView = {
             if (window.App) App.renderView();
         });
 
-        container.querySelector('#save-macros-btn').addEventListener('click', (e) => {
-            e.preventDefault();
-            const p = parseInt(document.getElementById('inp-macro-protein').value) || 0;
-            const c = parseInt(document.getElementById('inp-macro-cals').value) || 0;
-            const cb = parseInt(document.getElementById('inp-macro-carbs').value) || 0;
-            const f = parseInt(document.getElementById('inp-macro-fat').value) || 0;
-            
-            Store.updateActiveLog({ protein: p, calories: c, carbs: cb, fat: f });
-            
-            const btn = document.getElementById('save-macros-btn');
-            if (btn) {
+        const triggerSave = () => {
+            const getVal = (id) => parseInt(document.getElementById(id).value.toString().replace(/,/g, '')) || 0;
+            Store.updateActiveLog({ 
+                protein: getVal('inp-macro-protein'), 
+                calories: getVal('inp-macro-cals'), 
+                carbs: getVal('inp-macro-carbs'), 
+                fat: getVal('inp-macro-fat') 
+            });
+        };
+
+        ['inp-macro-protein', 'inp-macro-cals', 'inp-macro-carbs', 'inp-macro-fat'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', triggerSave);
+                el.addEventListener('blur', triggerSave);
+            }
+        });
+
+        const saveBtn = document.getElementById('save-macros-btn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                triggerSave();
+                const btn = e.target;
                 btn.textContent = "Saved!";
                 btn.style.backgroundColor = "var(--bg-surface-elevated)";
                 btn.style.color = "var(--accent-color)";
-                
                 setTimeout(() => {
-                    const activeBtn = document.getElementById('save-macros-btn');
-                    if (activeBtn) {
-                        activeBtn.textContent = "Save Macros";
-                        activeBtn.style.backgroundColor = "var(--accent-color)";
-                        activeBtn.style.color = "#000";
+                    if (document.body.contains(btn)) {
+                        btn.textContent = "Save Macros";
+                        btn.style.backgroundColor = "var(--accent-color)";
+                        btn.style.color = "#000";
                     }
                 }, 1000);
-            }
-        });
+            });
+        }
 
         // Compute and update values
         this.updateData();

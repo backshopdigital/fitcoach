@@ -114,6 +114,10 @@ try {
     if (window.firebase) {
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
+        db.enablePersistence({ synchronizeTabs: true })
+            .catch(function(err) {
+                console.error("Firebase persistence error:", err.code);
+            });
     }
 } catch (e) {
     console.error("Firebase init bypass:", e);
