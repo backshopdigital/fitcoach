@@ -130,9 +130,6 @@ class AppStore {
             emily: this.getInitialUserData()
         };
         this.listeners = [];
-        
-        // Start real-time cloud sync listener
-        this.initCloudSync();
     }
     
     getInitialUserData() {
@@ -154,7 +151,7 @@ class AppStore {
     }
     
     initCloudSync() {
-        if (!db) return;
+        if (!db || !window.firebase || !firebase.auth().currentUser) return;
         // Listen to remote changes
         db.collection('fitcoach').doc('globalStore').onSnapshot(doc => {
             if (doc.exists) {
@@ -179,7 +176,7 @@ class AppStore {
     }
     
     syncToCloud() {
-        if (!db) return;
+        if (!db || !window.firebase || !firebase.auth().currentUser) return;
         db.collection('fitcoach').doc('globalStore').set({
             userData: this.userData,
             usersConfig: this.usersConfig,

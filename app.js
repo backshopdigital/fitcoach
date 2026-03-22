@@ -8,6 +8,20 @@ const App = {
         this.setupProfileSwitcher();
         this.setupNavigation();
         this.setupAdminBtn();
+        
+        // Setup Auth Observer
+        if (window.firebase) {
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    // Turn layout back on
+                    document.getElementById('app-header').style.display = 'flex';
+                    document.getElementById('bottom-nav').style.display = 'flex';
+                    Store.initCloudSync(); // start syncing
+                }
+                this.renderView(); // recompute route
+            });
+        }
+        
         this.renderView();
         
         // Initialize Lucide icons
@@ -88,8 +102,18 @@ const App = {
             'weight': window.WeightView,
             'steps': window.StepsView,
             'checkin': window.CheckInView,
-            'admin': window.AdminView
+            'admin': window.AdminView,
+            'login': window.LoginView
         };
+        
+        // Unauthenticated guard
+        if (window.firebase && !firebase.auth().currentUser) {
+            if (this.currentRoute !== 'login') {
+                this.currentRoute = 'login';
+            }
+        } else if (this.currentRoute === 'login') {
+            this.currentRoute = 'dashboard';
+        }
         
         const view = views[this.currentRoute];
         if (view) {
